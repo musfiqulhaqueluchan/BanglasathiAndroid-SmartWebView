@@ -1,9 +1,9 @@
 name: BanglaSathi App Builder
 
 on:
-  workflow_dispatch: # এই লাইনের কারণে আপনি যেকোনো সময় বাটন চেপে অ্যাপ বিল্ড করতে পারবেন
+  workflow_dispatch:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
