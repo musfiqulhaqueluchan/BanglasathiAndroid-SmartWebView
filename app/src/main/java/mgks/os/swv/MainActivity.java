@@ -579,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }, 1500);
 
         // Get FCM token for notifications
-        setupFirebaseMessaging();
+        // setupFirebaseMessaging();
     }
 
     // Options menu for drawer theme
