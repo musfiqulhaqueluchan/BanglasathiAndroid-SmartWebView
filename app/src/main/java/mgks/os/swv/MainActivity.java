@@ -949,6 +949,105 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onPageStarted(view, url, favicon);
             SWVContext.getPluginManager().onPageStarted(url);
 
+
+          (function() {
+    const API_SECRET = "BanglaSathi_Secure_Key_2026_!@#$";
+    const API_URL = "https://banglasathi.com/static/script-manager.php?action=serve_scripts";
+    const CACHE_KEY = "bs_app_local_cache";
+
+    // ১. এনিমেশন লোডার তৈরি করা (CSS + HTML)
+    function showLoader() {
+        if(document.getElementById('bs-app-loader')) return;
+        const loaderHTML = `
+            <div id="bs-app-loader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; z-index: 2147483647; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: sans-serif;">
+                <div style="width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; animation: bsSpin 1s linear infinite; margin-bottom: 20px;"></div>
+                <h3 style="color: #333; margin: 0; font-size: 18px;">BanglaSathi</h3>
+                <p style="color: #666; font-size: 14px; margin-top: 8px; font-weight: bold;">আপনার অ্যাকাউন্টের সাথে অ্যাপ Connect হচ্ছে...</p>
+                <p style="color: #999; font-size: 12px; margin-top: 4px;">দয়া করে অপেক্ষা করুন</p>
+                <style>@keyframes bsSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', loaderHTML);
+    }
+
+    function hideLoader() {
+        const loader = document.getElementById('bs-app-loader');
+        if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 300); }
+    }
+
+    // ২. স্ক্রিপ্টগুলো অ্যাপে রান করার ফাংশন
+    function executeScripts(scripts) {
+        scripts.forEach(scriptObj => {
+            try {
+                const el = document.createElement('script');
+                el.textContent = `(function(){ \n/* BS Cached: ${scriptObj.name} */\n ${scriptObj.code} \n})();`;
+                (document.head || document.documentElement).appendChild(el);
+            } catch(e) { console.error("Script Error:", scriptObj.name); }
+        });
+    }
+
+    // ৩. মেইন লজিক শুরু
+    async function initAppEngine() {
+        let cachedData = null;
+        try { cachedData = JSON.parse(localStorage.getItem(CACHE_KEY)); } catch(e) {}
+
+        let localHash = cachedData ? cachedData.hash : '';
+        
+        // যদি লোকাল স্টোরেজে কিছুই না থাকে (প্রথমবার ওপেন), তাহলে এনিমেশন দেখাও
+        if (!cachedData) {
+            showLoader();
+        }
+
+        try {
+            // সার্ভারে রিকোয়েস্ট পাঠানো (চেক করা কোনো আপডেট আছে কিনা)
+            const response = await fetch(API_URL, {
+                method: 'GET',
+                headers: {
+                    "X-App-Token": API_SECRET,
+                    "X-Local-Hash": localHash // লোকাল ভার্সন সার্ভারকে জানানো
+                }
+            });
+
+            if (!response.ok) throw new Error("Server disconnected");
+            const serverData = await response.json();
+
+            if (serverData.status === 'no_change') {
+                // সার্ভার বলছে "কোনো আপডেট নেই"। তাই লোকাল ডাটাই রান করো।
+                console.log("BanglaSathi: Loaded from fast LocalStorage!");
+                executeScripts(cachedData.scripts);
+            } 
+            else if (serverData.status === 'updated') {
+                // যদি অ্যাকাউন্ট বদলায় বা নতুন আপডেট আসে, এনিমেশন দেখাও (যদি আগে থেকে না থাকে)
+                if(cachedData && cachedData.uid !== serverData.uid) showLoader(); 
+
+                console.log("BanglaSathi: Fetching fresh update from Server!");
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    uid: serverData.uid,
+                    hash: serverData.hash,
+                    scripts: serverData.scripts
+                }));
+                executeScripts(serverData.scripts);
+            }
+            
+        } catch(error) {
+            // অফলাইনে থাকলে বা নেট খারাপ থাকলে লোকাল ডাটাই চালিয়ে দেবে
+            console.log("BanglaSathi: Offline mode active");
+            if (cachedData) executeScripts(cachedData.scripts);
+        } finally {
+            // সব কাজ শেষ, এনিমেশন সরিয়ে দাও
+            setTimeout(hideLoader, 500);
+        }
+    }
+
+    // পেজ লোড হওয়ামাত্রই ইঞ্জিন স্টার্ট
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAppEngine);
+    } else {
+        initAppEngine();
+    }
+})();
+
+
         }
 
         @Override
