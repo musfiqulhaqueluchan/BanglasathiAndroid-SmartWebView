@@ -95,6 +95,9 @@ import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanIntentResult;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import com.onesignal.OneSignal;
+
+
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
@@ -126,12 +129,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "WrongViewCast", "JavascriptInterface"})
-    @Override
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState); // এই লাইনটা যদি আগে থেকে থাকে তবে এভাবেই থাকবে
+
+        // 👇 OneSignal পুশ নোটিফিকেশন সেটআপ 👇
+        OneSignal.initWithContext(this);
+        OneSignal.setAppId("আপনার-ONESIGNAL-APP-ID-এখানে-দিন");
+        OneSignal.promptForPushNotifications();
+        // 👆 OneSignal শেষ 👆
+
         // Secure the app on startup if biometric or auth is forced on launch
         if (SWVContext.ASWP_BLOCK_SCREENSHOTS) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         }
+
       
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
