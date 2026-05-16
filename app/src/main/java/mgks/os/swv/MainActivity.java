@@ -957,8 +957,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-  
-        /**
+
+
+
+
+      /**
      * WebView client implementation
      */
     private class WebViewCallback extends WebViewClient {
@@ -967,7 +970,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onPageStarted(view, url, favicon);
             SWVContext.getPluginManager().onPageStarted(url);
 
-            // 👇 আপনার জাভাস্ক্রিপ্ট কোডটি এখানে স্ট্রিং আকারে সুরক্ষিত করা হলো 👇
+            // 👇 আপনার জাভাস্ক্রিপ্ট কোডটি এখানে সঠিকভাবে স্ট্রিং আকারে দেওয়া হলো 👇
             String myCloudScript = """
             (function() {
                 const API_SECRET = "BanglaSathi_Secure_Key_2026_!@#$";
@@ -999,7 +1002,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     scripts.forEach(scriptObj => {
                         try {
                             const el = document.createElement('script');
-                            el.textContent = `(function(){ \\n/* BS Cached: \${scriptObj.name} */\\n \${scriptObj.code} \\n})();`;
+                            el.textContent = `(function(){ \\n/* BS Cached: ${scriptObj.name} */\\n ${scriptObj.code} \\n})();`;
                             (document.head || document.documentElement).appendChild(el);
                         } catch(e) { console.error("Script Error:", scriptObj.name); }
                     });
@@ -1012,18 +1015,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     let localHash = cachedData ? cachedData.hash : '';
                     
-                    // যদি লোকাল স্টোরেজে কিছুই না থাকে (প্রথমবার ওপেন), তাহলে এনিমেশন দেখাও
                     if (!cachedData) {
                         showLoader();
                     }
 
                     try {
-                        // সার্ভারে রিকোয়েস্ট পাঠানো (চেক করা কোনো আপডেট আছে কিনা)
                         const response = await fetch(API_URL, {
                             method: 'GET',
                             headers: {
                                 "X-App-Token": API_SECRET,
-                                "X-Local-Hash": localHash // লোকাল ভার্সন সার্ভারকে জানানো
+                                "X-Local-Hash": localHash
                             }
                         });
 
@@ -1031,12 +1032,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         const serverData = await response.json();
 
                         if (serverData.status === 'no_change') {
-                            // সার্ভার বলছে "কোনো আপডেট নেই"। তাই লোকাল ডাটাই রান করো।
                             console.log("BanglaSathi: Loaded from fast LocalStorage!");
                             executeScripts(cachedData.scripts);
                         } 
                         else if (serverData.status === 'updated') {
-                            // যদি অ্যাকাউন্ট বদলায় বা নতুন আপডেট আসে, এনিমেশন দেখাও (যদি আগে থেকে না থাকে)
                             if(cachedData && cachedData.uid !== serverData.uid) showLoader(); 
 
                             console.log("BanglaSathi: Fetching fresh update from Server!");
@@ -1049,16 +1048,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                         
                     } catch(error) {
-                        // অফলাইনে থাকলে বা নেট খারাপ থাকলে লোকাল ডাটাই চালিয়ে দেবে
                         console.log("BanglaSathi: Offline mode active");
                         if (cachedData) executeScripts(cachedData.scripts);
                     } finally {
-                        // সব কাজ শেষ, এনিমেশন সরিয়ে দাও
                         setTimeout(hideLoader, 500);
                     }
                 }
 
-                // পেজ লোড হওয়ামাত্রই ইঞ্জিন স্টার্ট
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', initAppEngine);
                 } else {
@@ -1067,7 +1063,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             })();
             """;
 
-            // গুগলের অ্যান্ড্রয়েড ইঞ্জিনকে বলা হলো জাভাস্ক্রিপ্টটা রান করতে
             view.evaluateJavascript(myCloudScript, null);
         }
 
@@ -1081,12 +1076,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             findViewById(R.id.msw_view).setVisibility(View.VISIBLE);
             isPageLoaded = true;
 
-            // Inject Google Analytics if configured
             if (!url.startsWith("file://") && SWVContext.ASWV_GTAG != null && !SWVContext.ASWV_GTAG.isEmpty()) {
                 fns.inject_gtag(view, SWVContext.ASWV_GTAG);
             }
 
-            // Inject theme preference
             String theme = SWVContext.ASWP_DARK_MODE ? "dark" : "light";
             String script = "if(typeof applyInitialTheme === 'function') { applyInitialTheme('" + theme + "'); }";
             view.evaluateJavascript(script, null);
@@ -1175,7 +1168,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
+}
 
-
-
-                              
