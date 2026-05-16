@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // 👇 OneSignal পুশ নোটিফিকেশন সেটআপ 👇
         OneSignal.initWithContext(this);
-        OneSignal.setAppId("আপনার-ONESIGNAL-APP-ID-এখানে-দিন");
+        OneSignal.setAppId("c6bb500e-2e6c-436e-b236-587bdd7d3603");
         OneSignal.promptForPushNotifications();
         // 👆 OneSignal শেষ 👆
 
