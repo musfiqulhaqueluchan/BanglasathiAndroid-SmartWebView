@@ -96,6 +96,15 @@ dependencies {
 	// Plugins
 	implementation 'com.journeyapps:zxing-android-embedded:4.3.0' // ZXing library for QR code scanning
 	implementation 'androidx.biometric:biometric:1.1.0' // Biometric authentication library
+
+
+
+
+    implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
+
+	
+
+
 }
 
 if (file('google-services.json').exists()) {
