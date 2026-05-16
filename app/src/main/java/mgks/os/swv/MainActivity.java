@@ -933,8 +933,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Log.d(TAG, "Notification permission granted.");
 
                         // Send a test notification under debug mode
-                        if(SWVContext.SWV_DEBUGMODE) {
-                            Firebase firebase = new Firebase();
+                      /*  if(SWVContext.SWV_DEBUGMODE) {
+                           // Firebase firebase = new Firebase();
                             firebase.sendMyNotification(
                                     "Yay! Firebase is working",
                                     "This is a test notification in action.",
@@ -944,6 +944,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     String.valueOf(SWVContext.ASWV_FCM_ID),
                                     getApplicationContext());
                         }
+                        */
                     } else {
                         Log.w(TAG, "Notification permission denied.");
                     }
